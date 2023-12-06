@@ -28,38 +28,36 @@ func main() { //vrty
 func (agent *Agent) Publish(topic string, msg string) {
 	//make it thread safe by aquiring the lock
 	agent.mut.Lock()
+	defer agent.mut.Unlock()
 
 	if agent.closed {
-		agent.mut.Unlock()
 		return
 	}
 
 	for _, ch := range agent.subs[topic] {
 		ch <- msg
 	}
-	agent.mut.Unlock()
 }
 
 func (agent *Agent) Subscribe(topic string) <-chan string {
 	agent.mut.Lock()
+	defer agent.mut.Unlock()
 
 	if agent.closed {
-		agent.mut.Unlock()
 		return nil
 	}
 
 	ch := make(chan string)
 	agent.subs[topic] = append(agent.subs[topic], ch)
-	agent.mut.Unlock()
 	return ch
 
 }
 
 func (agent *Agent) Close() {
 	agent.mut.Lock()
+	defer agent.mut.Unlock()
 
 	if agent.closed {
-		defer agent.mut.Unlock()
 		return
 	}
 
@@ -72,7 +70,6 @@ func (agent *Agent) Close() {
 			close(sub)
 		}
 	}
-	agent.mut.Unlock()
 }
 
 func NewAgent() *Agent {
