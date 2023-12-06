@@ -14,7 +14,7 @@ type Agent struct {
 
 var msgBroker = make(chan string)
 
-func main() { //v
+func main() { //vr
 	agent := NewAgent()
 
 	sub := agent.Subscribe("test1")
